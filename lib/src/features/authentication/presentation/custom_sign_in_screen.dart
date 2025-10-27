@@ -14,7 +14,18 @@ class CustomSignInScreen extends ConsumerWidget {
     final authProviders = ref.watch(authProvidersProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign in'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 32,
+              width: 32,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 12),
+            const Text('Sign in'),
+          ],
+        ),
       ),
       body: SignInScreen(
         providers: authProviders,

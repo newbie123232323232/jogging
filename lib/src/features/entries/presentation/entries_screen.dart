@@ -13,7 +13,18 @@ class EntriesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Strings.entries),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 32,
+              width: 32,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 12),
+            const Text(Strings.entries),
+          ],
+        ),
       ),
       body: Consumer(
         builder: (context, ref, child) {

@@ -21,6 +21,9 @@ class EntryScreenController extends _$EntryScreenController {
     required DateTime start,
     required DateTime end,
     required String comment,
+    double distance = 0.0,
+    double avgSpeed = 0.0,
+    double calories = 0.0,
   }) async {
     final currentUser = ref.read(authRepositoryProvider).currentUser;
     if (currentUser == null) {
@@ -35,6 +38,9 @@ class EntryScreenController extends _$EntryScreenController {
             start: start,
             end: end,
             comment: comment,
+            distance: distance,
+            avgSpeed: avgSpeed,
+            calories: calories,
           ));
     } else {
       final entry = Entry(
@@ -43,6 +49,9 @@ class EntryScreenController extends _$EntryScreenController {
         start: start,
         end: end,
         comment: comment,
+        distance: distance,
+        avgSpeed: avgSpeed,
+        calories: calories,
       );
       state = await AsyncValue.guard(
           () => repository.updateEntry(uid: currentUser.uid, entry: entry));

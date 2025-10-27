@@ -66,7 +66,18 @@ class _EditJobPageState extends ConsumerState<EditJobScreen> {
     final state = ref.watch(editJobScreenControllerProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.job == null ? 'New Job' : 'Edit Job'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 28,
+              width: 28,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 12),
+            Text(widget.job == null ? 'New Run' : 'Edit Run'),
+          ],
+        ),
         actions: <Widget>[
           TextButton(
             onPressed: state.isLoading ? null : _submit,
@@ -109,7 +120,7 @@ class _EditJobPageState extends ConsumerState<EditJobScreen> {
   List<Widget> _buildFormChildren() {
     return [
       TextFormField(
-        decoration: const InputDecoration(labelText: 'Job name'),
+        decoration: const InputDecoration(labelText: 'Run name'),
         keyboardAppearance: Brightness.light,
         initialValue: _name,
         validator: (value) =>
@@ -117,7 +128,7 @@ class _EditJobPageState extends ConsumerState<EditJobScreen> {
         onSaved: (value) => _name = value,
       ),
       TextFormField(
-        decoration: const InputDecoration(labelText: 'Rate per hour'),
+        decoration: const InputDecoration(labelText: 'Points per hour'),
         keyboardAppearance: Brightness.light,
         initialValue: _ratePerHour != null ? '$_ratePerHour' : null,
         keyboardType: const TextInputType.numberWithOptions(

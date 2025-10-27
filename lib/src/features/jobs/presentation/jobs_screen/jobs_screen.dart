@@ -16,7 +16,18 @@ class JobsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Strings.jobs),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 32,
+              width: 32,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 12),
+            const Text(Strings.jobs),
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.add, color: Colors.white),
@@ -33,7 +44,31 @@ class JobsScreen extends StatelessWidget {
           final jobsQuery = ref.watch(jobsQueryProvider);
           return FirestoreListView<Job>(
             query: jobsQuery,
-            emptyBuilder: (context) => const Center(child: Text('No data')),
+            emptyBuilder: (context) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.directions_run, size: 80, color: Colors.grey.shade300),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No runs yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap + to create your first run',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             errorBuilder: (context, error, stackTrace) => Center(
               child: Text(error.toString()),
             ),
@@ -71,10 +106,69 @@ class JobListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(job.name),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.blue.shade400,
+            Colors.purple.shade400,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.shade300.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.directions_run,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+        title: Text(
+          job.name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          '${job.ratePerHour} pts/hour',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 13,
+          ),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.3),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.chevron_right,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+        onTap: onTap,
+      ),
     );
   }
 }

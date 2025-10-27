@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:starter_architecture_flutter_firebase/src/common_widgets/date_time_picker.dart';
 import 'package:starter_architecture_flutter_firebase/src/common_widgets/responsive_center.dart';
+import 'package:starter_architecture_flutter_firebase/src/common_widgets/body_info_dialog.dart'
+    show BodyInfo, showBodyInfoDialog;
 import 'package:starter_architecture_flutter_firebase/src/constants/app_sizes.dart';
 import 'package:starter_architecture_flutter_firebase/src/constants/breakpoints.dart';
 import 'package:starter_architecture_flutter_firebase/src/features/entries/domain/entry.dart';
@@ -12,6 +14,8 @@ import 'package:starter_architecture_flutter_firebase/src/features/jobs/domain/j
 import 'package:starter_architecture_flutter_firebase/src/features/entries/presentation/entry_screen/entry_screen_controller.dart';
 import 'package:starter_architecture_flutter_firebase/src/utils/async_value_ui.dart';
 import 'package:starter_architecture_flutter_firebase/src/utils/format.dart';
+import 'package:starter_architecture_flutter_firebase/src/utils/fake_location_service.dart';
+import 'package:starter_architecture_flutter_firebase/src/features/jobs/data/jobs_repository.dart';
 
 class EntryScreen extends ConsumerStatefulWidget {
   const EntryScreen({super.key, required this.jobId, this.entryId, this.entry});
@@ -50,6 +54,24 @@ class _EntryPageState extends ConsumerState<EntryScreen> {
   }
 
   Future<void> _setEntryAndDismiss() async {
+    // Show body info dialog for ALL jobs (demo jogging feature)
+    BodyInfo? bodyInfo;
+    double distance = 0.0;
+    double avgSpeed = 0.0;
+    double calories = 0.0;
+    
+    // Show body info dialog
+    bodyInfo = await showBodyInfoDialog(context);
+    if (bodyInfo == null) {
+      return; // User cancelled
+    }
+
+    // For demo: distance = 0 (GPS stands still), calculate metrics accordingly
+    final duration = end.difference(start);
+    distance = 0.0; // Demo: GPS stands still
+    avgSpeed = 0.0; // Demo: no movement
+    calories = 0.0; // Demo: no calories consumed (no distance travelled)
+
     final success =
         await ref.read(entryScreenControllerProvider.notifier).submit(
               entryId: widget.entryId,
@@ -57,10 +79,39 @@ class _EntryPageState extends ConsumerState<EntryScreen> {
               start: start,
               end: end,
               comment: _comment,
+              distance: distance,
+              avgSpeed: avgSpeed,
+              calories: calories,
             );
     if (success && mounted) {
       context.pop();
     }
+  }
+
+  Future<FakeLocation?> _showLocationPicker() async {
+    return showDialog<FakeLocation>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Destination'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: FakeLocation.destinations.map((location) {
+            final distance = FakeLocationService.getDistanceToDestination(location);
+            return ListTile(
+              title: Text(location.name),
+              subtitle: Text('${distance.toStringAsFixed(2)} km'),
+              onTap: () => Navigator.of(context).pop(location),
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -71,7 +122,18 @@ class _EntryPageState extends ConsumerState<EntryScreen> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.entry != null ? 'Edit Entry' : 'New Entry'),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 28,
+              width: 28,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 12),
+            Text(widget.entry != null ? 'Edit Entry' : 'New Entry'),
+          ],
+        ),
         actions: <Widget>[
           TextButton(
             child: Text(
@@ -94,6 +156,8 @@ class _EntryPageState extends ConsumerState<EntryScreen> {
               _buildEndDate(),
               gapH8,
               _buildDuration(),
+              gapH8,
+              _buildJoggingMetrics(),
               gapH8,
               _buildComment(),
             ],
@@ -134,6 +198,74 @@ class _EntryPageState extends ConsumerState<EntryScreen> {
           style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildJoggingMetrics() {
+    final entry = widget.entry;
+    if (entry == null) {
+      return const SizedBox.shrink(); // Hide for new entries
+    }
+    
+    final distance = entry.distance;
+    final avgSpeed = entry.avgSpeed;
+    final calories = entry.calories;
+    
+    // Only show if any value is non-zero
+    if (distance == 0.0 && avgSpeed == 0.0 && calories == 0.0) {
+      return const SizedBox.shrink();
+    }
+    
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Jogging Metrics',
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildMetricItem('Distance', '${distance.toStringAsFixed(2)} km'),
+                _buildMetricItem('Avg Speed', '${avgSpeed.toStringAsFixed(2)} km/h'),
+                _buildMetricItem('Calories', '${calories.toStringAsFixed(0)} kcal'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricItem(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14.0,
+            color: Colors.grey,
+          ),
         ),
       ],
     );

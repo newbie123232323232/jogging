@@ -65,7 +65,7 @@ class ScaffoldWithNavigationBar extends StatelessWidget {
           NavigationDestination(
             icon: const Icon(Icons.work_outline),
             selectedIcon: const Icon(Icons.work),
-            label: 'Jobs'.hardcoded,
+            label: 'Runs'.hardcoded,
           ),
           NavigationDestination(
             icon: const Icon(Icons.view_headline_outlined),

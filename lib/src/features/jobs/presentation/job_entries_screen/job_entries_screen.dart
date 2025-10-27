@@ -29,7 +29,23 @@ class JobEntriesPageContents extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(job.name),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 28,
+              width: 28,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                job.name,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.edit, color: Colors.white),
@@ -42,8 +58,10 @@ class JobEntriesPageContents extends StatelessWidget {
         ],
       ),
       body: JobEntriesList(job: job),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.directions_run, color: Colors.white),
+        label: const Text('Start Run', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue.shade600,
         onPressed: () => context.goNamed(
           AppRoute.addEntry.name,
           pathParameters: {'id': job.id},
