@@ -40,7 +40,7 @@ flutter run
 
 - **Framework**: Flutter
 - **State Management**: Riverpod
-- **Backend**: Firebase
+- **DataBase**: Firebase
 - **Architecture**: Clean Architecture
 
 ## License
